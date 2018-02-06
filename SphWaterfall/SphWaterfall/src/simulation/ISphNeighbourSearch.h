@@ -1,9 +1,17 @@
 #pragma once
-#include "../data/ISphParticle.h"
+#include "../data/SphParticle.h"
 #include "ParticleDomain.h"
+#include "SimulationUtilities.h";
+
+#include <unordered_map>
+#include <set>
+
+using namespace SimulationUtilities;
 
 class ISphNeighbourSearch {
 public:
-	virtual std::vector<ISphParticle> findNeigbours(ISphParticle, ParticleDomain domains[]) = 0; // usage of vector as array needs review
-	virtual std::vector<ParticleDomain> findRelevantNeighbourDomains(ISphParticle, ParticleDomain domains[]) = 0; // ^
+	virtual std::vector<SphParticle> findNeigbours(SphParticle particle, std::vector<SphParticle> neighbour_particles) = 0;
+	virtual std::set<int> findRelevantNeighbourDomains(SphParticle particle, Vector3 dimension) = 0;
+
+private:
 };

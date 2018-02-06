@@ -1,9 +1,15 @@
 #pragma once
 #include "Face.h"
 
-Face::Face(int a, int b, int c)
+
+Face::Face() :
+	a(Vector3()),
+	b(Vector3()),
+	c(Vector3())
 {
-	this-> a = a;
-	this-> b = b;
-	this-> c = c;
+}
+
+Face::Face(Vector3 a, Vector3 b, Vector3 c) :
+	a(a), b(b), c(c)
+{
 }

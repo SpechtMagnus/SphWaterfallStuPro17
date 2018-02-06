@@ -74,7 +74,7 @@ Pixel Camera::castDebugRay(Ray ray, std::vector<DebugObject> particles) {
 	return hit == nullptr ? Pixel(0, 0, 0) : hitObject.getColor();
 }
 
-void Camera::renderFrame(std::vector<ISphParticle> particles) {
+void Camera::renderFrame(std::vector<SphParticle> particles) {
 	//TODO: implement rendering algorithm
 }
 

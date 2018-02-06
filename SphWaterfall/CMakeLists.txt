@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(SphWaterfall)
+project(SphWaterfall C CXX)
 
 find_package(MPI REQUIRED)
 # add this line only when you are using openmpi which has a different c++ bindings

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../data/Vector3.h"
-#include "../data/SphParticle.h"
+#include "../data/FluidParticle.h"
 #include <math.h>
 
 const int bytesPerPixel = 3; /// red, green, blue
@@ -48,7 +48,7 @@ static Vector3 normalizeVector(Vector3 vec) {
 	return Vector3(vec.x / len, vec.y / len, vec.z / len);
 }
 
-static std::vector<DebugObject> convertSphParticles(std::vector<SphParticle> &particles) {
+static std::vector<DebugObject> convertSphParticles(std::vector<FluidParticle> &particles) {
 	std::vector<DebugObject> output;
 	for (unsigned int i = 0; i < particles.size(); i++) {
 		output.emplace_back(DebugObject(particles[i].position, 1));

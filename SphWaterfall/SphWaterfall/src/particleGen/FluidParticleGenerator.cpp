@@ -6,9 +6,9 @@ FluidParticleGenerator::FluidParticleGenerator(double disposalHeight, Vector3 sp
 	this-> spawn = spawn;
 }
 
-ISphParticle FluidParticleGenerator::spawnParticle() {
+SphParticle FluidParticleGenerator::spawnParticle() {
 	//TODO
-	return ISphParticle();
+	return SphParticle();
 }
 
 void FluidParticleGenerator::collectInactive() {

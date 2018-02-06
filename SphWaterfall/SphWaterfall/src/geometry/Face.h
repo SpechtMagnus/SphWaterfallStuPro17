@@ -1,9 +1,12 @@
 #pragma once
+#include "../data/Vector3.h"
 
 class Face {
 public:
-	Face(int a, int b, int c);
-	int a;
-	int b;
-	int c;
+	Face();
+	Face(Vector3, Vector3, Vector3);
+
+	const Vector3 a;
+	const Vector3 b;
+	const Vector3 c;
 };

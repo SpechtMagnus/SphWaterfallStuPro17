@@ -1,7 +1,7 @@
 #pragma once
 #include "Frame.h"
 #include "DebugObject.h"
-#include "../data/ISphParticle.h"
+#include "../data/SphParticle.h"
 #include "../data/Vector3.h"
 #include <vector>
 #include <string>
@@ -12,7 +12,7 @@ public:
 
 	void debugRenderFrame(std::vector<DebugObject> particles, int frameID);
 
-	void renderFrame(std::vector<ISphParticle> particles); //Vector is only a placeholder here as the data structure isnt decided yet
+	void renderFrame(std::vector<SphParticle> particles); //Vector is only a placeholder here as the data structure isnt decided yet
 
 	void mergeFramesAndFlushVideo(std::string file);
 	void outputDebugFrame(Frame f, const char* fileName);

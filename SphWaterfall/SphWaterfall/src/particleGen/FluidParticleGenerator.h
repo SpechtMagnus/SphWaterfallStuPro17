@@ -2,20 +2,20 @@
 #include "vector"
 
 #include "../data/Vector3.h"
-#include "../data/ISphParticle.h" 
+#include "../data/SphParticle.h" 
 
 class FluidParticleGenerator {
 public:
 	FluidParticleGenerator();
 	FluidParticleGenerator(double disposalHeight, Vector3 spawn);
-	ISphParticle spawnParticle();
+	SphParticle spawnParticle();
 	void collectInactive();
 
 
 
 private:
-	std::vector<ISphParticle> activeParticles;
-	std::vector<ISphParticle> inactiveParticles;
+	std::vector<SphParticle> activeParticles;
+	std::vector<SphParticle> inactiveParticles;
 	double disposalHeight;
 	Vector3 spawn;
 };
