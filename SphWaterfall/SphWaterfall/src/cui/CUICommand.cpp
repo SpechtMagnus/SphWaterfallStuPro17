@@ -83,3 +83,13 @@ bool CUICommand::removeParameter(std::string parameter_name) {
 	}
 	return false;
 }
+
+bool CUICommand::hasParameter(std::string parameter_name) {
+	for (int i = 0; i < parameter_list.size(); i++) {
+		CUICommandParameter& parameter = parameter_list.at(i);
+		if (parameter.getParameterName() == parameter_name) {
+			return true;
+		}
+	}
+	return false;
+}

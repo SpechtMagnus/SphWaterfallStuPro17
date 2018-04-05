@@ -20,8 +20,10 @@
 // particle mass
 #define STATIC_MASS 5.0
 
-// Number of simulation timesteps
-#define TIMESTEPS 100
+// default simulation time in seconds
+#define DEFAULT_SIMULATION_TIME 3
+// time in seconds one timestep takes
+#define TIMESTEP_DURATION 0.03
 
 // Sph Manager tags
 #define META_TAG 0

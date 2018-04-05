@@ -119,8 +119,10 @@ void CUI::cleanAndExecuteCommand(bool is_config_execution) {
 		printInputMessage();
 	}
 	else if (command == "simulate") {
-		current_command.setCommand(CUICommand::SIMULATE);
-		command_handler.handleCUICommand(current_command);
+		if (cleanSimulate()) {
+			current_command.setCommand(CUICommand::SIMULATE);
+			command_handler.handleCUICommand(current_command);
+		}
 		printInputMessage();
 	}
 	else if (command == "render")
@@ -354,6 +356,25 @@ bool CUI::cleanAddSink() {
 			current_command.removeParameter(parameter);
 			hasOnlyValidParameters = false;
 			std::cout << "Missing path parameter '-h'" << std::endl;
+		}
+	}
+
+	return hasOnlyValidParameters;
+}
+
+bool CUI::cleanSimulate() {
+	bool hasOnlyValidParameters = true;
+
+	for (CUICommandParameter& parameter : current_command.getParameterList()) {
+		if (parameter.getParameterName() == "-t") {
+			std::string time_for_move = parameter.getValue();
+			if (time_for_move.find_first_not_of("0123456789") != std::string::npos) {
+				current_command.removeParameter(parameter);
+				std::cout << "'" << parameter.getValue() << "' is not a number" << std::endl;
+			}
+		}
+		else {
+			current_command.removeParameter(parameter);
 		}
 	}
 

@@ -3,14 +3,12 @@
 
 #define PRESSURE_CONSTANT 20.0
 
-SphManager::SphManager(const Vector3& domain_dimensions, int number_of_timesteps, double timestep_duration) :
+SphManager::SphManager(const Vector3& domain_dimensions) :
 	domain_dimensions(domain_dimensions),
-	number_of_timesteps(number_of_timesteps),
-	timestep_duration(timestep_duration),
 	gravity_acceleration(Vector3(0.0, -9.81, 0.0)),
 	sink_height(0.0)
 {
-	half_timestep_duration = timestep_duration / 2.0;
+	half_timestep_duration = TIMESTEP_DURATION / 2.0;
 
 	kernel = kernel_factory.getInstance(1);
 	neighbour_search = neighbour_search_factory.getInstance(1);
@@ -20,11 +18,15 @@ SphManager::SphManager(const Vector3& domain_dimensions, int number_of_timesteps
 	}
 }
 
+SphManager::SphManager(){
+
+}
+
 SphManager::~SphManager() {
 
 }
 
-void SphManager::simulate() {
+void SphManager::simulate(int number_of_timesteps) {
 	MPI_Comm_rank(slave_comm, &mpi_rank);
 
 	if (mpi_rank == 0) {
@@ -41,6 +43,7 @@ void SphManager::simulate() {
 	int exchange_rim_particles_time, update_particles_time, exchange_particles_time, simulation_timestep_time, export_particles_time;
 	std::chrono::steady_clock::time_point begin, end;
 
+	std::cout << number_of_timesteps << std::endl;
 	for (int simulation_timestep = 1; simulation_timestep <= number_of_timesteps; simulation_timestep++) {
 		if (mpi_rank == 0) {
 			begin = std::chrono::steady_clock::now();
@@ -173,7 +176,7 @@ bool SphManager::updateVelocity(SphParticle& particle) {
 	Vector3 position_timestep_half = particle.position + (half_timestep_duration * particle.velocity);
 
 	Vector3 accelleration_timestep_half = computeAcceleration(particle);
-	Vector3 velocity_timestep_end = particle.velocity + (timestep_duration * accelleration_timestep_half);
+	Vector3 velocity_timestep_end = particle.velocity + (TIMESTEP_DURATION * accelleration_timestep_half);
 	particle.position = position_timestep_half + (half_timestep_duration * velocity_timestep_end);
 	return particle.position.y <= sink_height;
 }

@@ -36,6 +36,7 @@ class CUICommand {
 		void addParameter(CUICommandParameter parameter);
 		bool removeParameter(CUICommandParameter parameter);
 		bool removeParameter(std::string parameter_name);
+		bool hasParameter(std::string parameter_name);
 	private:
 		std::string input_line;
 		Command command;

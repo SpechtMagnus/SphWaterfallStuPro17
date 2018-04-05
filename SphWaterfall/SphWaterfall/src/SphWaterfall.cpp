@@ -1,5 +1,3 @@
-#include "mpi.h"
-
 #include "cui/CUI.h"
 
 int main(int argc, char** argv) {

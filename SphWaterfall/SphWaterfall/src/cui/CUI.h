@@ -35,4 +35,5 @@ class CUI {
 		bool cleanMoveShutter();
 		bool cleanAddSource();
 		bool cleanAddSink();
+		bool cleanSimulate();
 };

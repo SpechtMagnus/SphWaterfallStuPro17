@@ -11,19 +11,18 @@
 
 class SphManager {
 public:
-	SphManager(const Vector3&, int number_of_timesteps, double timestep_duration);
+	SphManager();
+	SphManager(const Vector3&);
 	~SphManager();
 
-	void simulate();
+	void simulate(int number_of_timesteps);
 	void add_particles(const std::vector<SphParticle>&);
 	void exportParticles();
 
 private:
 	int mpi_rank;
 	Vector3 domain_dimensions;
-	int number_of_timesteps;
 	double sink_height;
-	double const timestep_duration;
 	double half_timestep_duration;
 	Vector3 const gravity_acceleration;
 	std::unordered_map<int, ParticleDomain> domains;

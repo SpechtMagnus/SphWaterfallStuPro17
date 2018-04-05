@@ -2,7 +2,8 @@
 
 CommandHandler::CommandHandler(int mpi_rank) : 
 	mpi_rank(mpi_rank),
-	sph_manager(SphManager(Vector3(DOMAIN_DIMENSION, DOMAIN_DIMENSION, DOMAIN_DIMENSION), TIMESTEPS, 0.03)){
+	simulation_time(DEFAULT_SIMULATION_TIME),
+	sph_manager(SphManager(Vector3(DOMAIN_DIMENSION, DOMAIN_DIMENSION, DOMAIN_DIMENSION))){
 }
 
 void CommandHandler::start() {
@@ -135,6 +136,7 @@ void CommandHandler::sendCommand(CUICommand& cui_command) {
 
 void CommandHandler::executeCommand(CUICommand& cui_command) {
 	std::string file_path, time_for_move, source_position, sink_height;
+	int simulation_timesteps;
 
 	switch (cui_command.getCommand()) {
 		case CUICommand::LOAD_MESH:
@@ -180,11 +182,18 @@ void CommandHandler::executeCommand(CUICommand& cui_command) {
 			}
 			break;
 		case CUICommand::SIMULATE:
-			if (mpi_rank != 0) {
-				simulate();
+			if (cui_command.hasParameter("-t")) {
+				simulation_timesteps = round(parseToInteger(cui_command.getParameter(0).getValue()) / TIMESTEP_DURATION);
 			}
 			else {
-				createExport();
+				simulation_timesteps = round(simulation_time / TIMESTEP_DURATION);
+			}
+			
+			if (mpi_rank != 0) {
+				simulate(simulation_timesteps);
+			}
+			else {
+				createExport(simulation_timesteps);
 			}
 			MPI_Barrier(MPI_COMM_WORLD);
 
@@ -227,6 +236,29 @@ void CommandHandler::executeCommand(CUICommand& cui_command) {
 	}
 }
 
+int CommandHandler::parseToInteger(std::string input) {
+	std::istringstream input_parse_stream(input);
+	int output;
+	input_parse_stream >> output;
+	return output;
+}
+
+double CommandHandler::parseToDouble(std::string input) {
+	std::istringstream input_parse_stream(input);
+	double output;
+	input_parse_stream >> output;
+	return output;
+}
+
+Vector3 CommandHandler::parseToVector3(std::string input) {
+	std::istringstream input_parse_stream(input);
+	double x, y, z;
+	input_parse_stream >> x;
+	input_parse_stream >> y;
+	input_parse_stream >> z;
+	return Vector3(x, y, z);
+}
+
 void CommandHandler::printInputMessage() {
 	std::cout << std::endl << "Please enter a command or enter 'help' to show a list of all commands" << std::endl;
 }
@@ -247,7 +279,7 @@ void CommandHandler::generateParticles(Terrain& loaded_mesh, SphParticle::Partic
 	}
 }
 
-void CommandHandler::createExport() {
+void CommandHandler::createExport(int simulation_timesteps) {
 	int current_timestep = 1;
 	unordered_map<int, vector<SphParticle>> export_map;
 
@@ -255,7 +287,7 @@ void CommandHandler::createExport() {
 	MPI_Comm_size(MPI_COMM_WORLD, &slave_comm_size);
 	slave_comm_size--;
 
-	while (current_timestep <= TIMESTEPS) {
+	while (current_timestep <= simulation_timesteps) {
 		std::vector<SphParticle> all_particles_of_timestep;
 
 		std::vector<int> number_of_incoming_particles = std::vector<int>(slave_comm_size);
@@ -286,13 +318,11 @@ void CommandHandler::createExport() {
 }
 
 void CommandHandler::moveShutter(std::string shutter_move_param) {
-	std::istringstream shutterMoveValues(shutter_move_param);
-	int shutter_move_frame;
-	shutterMoveValues >> shutter_move_frame;
+	int shutter_move_frame = parseToInteger(shutter_move_param);
 	std::cout << "Shutter opening at frame: " << shutter_move_frame << std::endl;
 }
 
-void CommandHandler::simulate() {
+void CommandHandler::simulate(int simulation_timesteps) {
 	if (mpi_rank == 1) {
 		std::vector<SphParticle> particles;
 
@@ -306,7 +336,7 @@ void CommandHandler::simulate() {
 
 		sph_manager.add_particles(particles);
 	}
-	sph_manager.simulate();
+	sph_manager.simulate(simulation_timesteps);
 }
 
 void CommandHandler::render(Terrain loaded_mesh, Terrain loaded_shutter, int shutter_time) {
@@ -328,18 +358,11 @@ void CommandHandler::render(Terrain loaded_mesh, Terrain loaded_shutter, int shu
 }
 
 void CommandHandler::addSource(std::string source_position_string) {
-	std::istringstream source_position_stream(source_position_string);
-	double x, y, z;
-	source_position_stream >> x;
-	source_position_stream >> y;
-	source_position_stream >> z;
-	Vector3 source_position = Vector3(x, y, z);
+	Vector3 source_position = parseToVector3(source_position_string);
 	std::cout << "New source: " << source_position << std::endl;
 }
 
 void CommandHandler::addSink(std::string sink_height_string) {
-	std::istringstream sink_height_stream(sink_height_string);
-	double sink_height;
-	sink_height_stream >> sink_height;
+	double sink_height = parseToDouble(sink_height_string);
 	std::cout << "New sink height: " << sink_height << std::endl;
 }
