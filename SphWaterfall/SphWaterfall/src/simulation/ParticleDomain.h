@@ -37,12 +37,11 @@ public:
 	std::unordered_map<int, std::vector<SphParticle>>& getNeighbourRimParticles();
 
 private:
-	std::vector<SphParticle> particles;
-	std::unordered_map<int, std::vector<SphParticle>> neighbour_rim_particles;
-	std::vector<int> neighbour_domains;
-	bool has_static_particles;
-	int number_of_fluid_particles;
-	int particles_outside_domain;
 	Vector3 origin;
 	Vector3 dimensions;
+	std::vector<SphParticle> particles;
+
+	std::unordered_map<int, std::vector<SphParticle>> neighbour_rim_particles;
+	bool has_static_particles;
+	int number_of_fluid_particles;
 };

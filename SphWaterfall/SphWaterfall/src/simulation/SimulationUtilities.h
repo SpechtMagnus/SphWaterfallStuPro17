@@ -25,6 +25,11 @@
 // time in seconds one timestep takes
 #define TIMESTEP_DURATION 0.03
 
+
+// tolerance for domain decomposition in 0.01 = 1%
+#define DECOMPOSITION_TOLERANCE 0.02
+
+
 // Sph Manager tags
 #define META_TAG 0
 #define EXCHANGE_TAG 1

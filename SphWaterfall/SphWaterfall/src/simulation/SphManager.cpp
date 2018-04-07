@@ -40,7 +40,7 @@ void SphManager::simulate(int number_of_timesteps) {
 		std::cout << "starting simulation..." << std::endl;
 	}
 
-	int exchange_rim_particles_time, update_particles_time, exchange_particles_time, simulation_timestep_time, export_particles_time;
+	int exchange_rim_particles_time, update_particles_time, exchange_particles_time, simulation_timestep_time, export_particles_time, decide_decomposition_time;
 	std::chrono::steady_clock::time_point begin, end;
 
 	std::cout << number_of_timesteps << std::endl;
@@ -69,6 +69,21 @@ void SphManager::simulate(int number_of_timesteps) {
 			std::cout << "finished exchange in " << exchange_particles_time << "ms" << std::endl;
 			begin = std::chrono::steady_clock::now();
 		}
+
+		/* -_-_-_Domain decomposition begin-_-_- */ 
+		bool decompose = decideDomainDecomposition();
+		if (mpi_rank == 0) {
+			end = std::chrono::steady_clock::now();
+			decide_decomposition_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+			std::cout << "finished domain decomposition in " << decide_decomposition_time << "ms result is: " << decompose << std::endl;
+			begin = std::chrono::steady_clock::now();
+		}
+		if (decompose) {
+
+		}
+
+		/* -_-_-_Domain decomposition end-_-_- */
+
 		exportParticles();
 		if (mpi_rank == 0) {
 			end = std::chrono::steady_clock::now();
@@ -346,6 +361,39 @@ void SphManager::exchangeRimParticles(SphParticle::ParticleType particle_type) {
 void SphManager::setSink(double sink_height)
 {
 	this->sink_height = sink_height;
+}
+
+bool SphManager::decideDomainDecomposition() {
+	int number_of_particles = 0;
+	for (auto& domain : domains) {
+		number_of_particles += domain.second.size();
+	}
+
+	int* particle_amounts = NULL;
+	if (mpi_rank == 0) {
+		particle_amounts = (int*) malloc(sizeof(int) * slave_comm_size);
+	}
+
+	MPI_Gather(&number_of_particles, 1, MPI_INT, particle_amounts, 1, MPI_INT, 0, slave_comm);
+
+	if (mpi_rank == 0) {
+		int smallest_particles_size = particle_amounts[0];
+		int largest_particle_size = particle_amounts[0];
+
+		for (int i = 1; i < slave_comm_size; i++) {
+			if (smallest_particles_size > particle_amounts[i]) {
+				smallest_particles_size = particle_amounts[i];
+			}
+			if (largest_particle_size < particle_amounts[i]) {
+				largest_particle_size = particle_amounts[i];
+			}
+		}
+		std::cout << "decide domain decomposition: min:" << smallest_particles_size << " max:" << largest_particle_size << std::endl;
+
+		return (1 - (smallest_particles_size / largest_particle_size)) < DECOMPOSITION_TOLERANCE;
+	}
+
+	return false;
 }
 
 void SphManager::exchangeParticles() {

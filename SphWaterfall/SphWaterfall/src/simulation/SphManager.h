@@ -47,6 +47,9 @@ private:
 	Vector3 computeViscosityAcceleration(SphParticle& particle);
 	void computeLocalDensity(SphParticle&);
 	double computeLocalPressure(SphParticle&);
+
+	bool decideDomainDecomposition();
+
 	void exchangeParticles();
 	void exchangeRimParticles(SphParticle::ParticleType);
 	void setSink(double);
