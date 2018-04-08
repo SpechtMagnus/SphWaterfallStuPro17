@@ -71,15 +71,14 @@ void SphManager::simulate(int number_of_timesteps) {
 		}
 
 		/* -_-_-_Domain decomposition begin-_-_- */ 
-		bool decompose = decideDomainDecomposition();
+
+		decomposeDomain();
+
 		if (mpi_rank == 0) {
 			end = std::chrono::steady_clock::now();
 			decide_decomposition_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-			std::cout << "finished domain decomposition in " << decide_decomposition_time << "ms result is: " << decompose << std::endl;
+			std::cout << "finished domain decomposition in " << decide_decomposition_time << "ms" << std::endl;
 			begin = std::chrono::steady_clock::now();
-		}
-		if (decompose) {
-
 		}
 
 		/* -_-_-_Domain decomposition end-_-_- */
@@ -363,7 +362,7 @@ void SphManager::setSink(double sink_height)
 	this->sink_height = sink_height;
 }
 
-bool SphManager::decideDomainDecomposition() {
+void SphManager::decomposeDomain() {
 	int number_of_particles = 0;
 	for (auto& domain : domains) {
 		number_of_particles += domain.second.size();
@@ -371,11 +370,22 @@ bool SphManager::decideDomainDecomposition() {
 
 	int* particle_amounts = NULL;
 	if (mpi_rank == 0) {
-		particle_amounts = (int*) malloc(sizeof(int) * slave_comm_size);
+		particle_amounts = (int*)malloc(sizeof(int) * slave_comm_size);
 	}
 
 	MPI_Gather(&number_of_particles, 1, MPI_INT, particle_amounts, 1, MPI_INT, 0, slave_comm);
 
+	if (mpi_rank == 0) {
+		if (decideDomainDecomposition(particle_amounts)) {
+			std::cout << "true" << std::endl;
+		}
+		else {
+			std::cout << "false" << std::endl;
+		}
+	}
+}
+
+bool SphManager::decideDomainDecomposition(int* particle_amounts) {
 	if (mpi_rank == 0) {
 		int smallest_particles_size = particle_amounts[0];
 		int largest_particle_size = particle_amounts[0];
@@ -388,7 +398,7 @@ bool SphManager::decideDomainDecomposition() {
 				largest_particle_size = particle_amounts[i];
 			}
 		}
-		std::cout << "decide domain decomposition: min:" << smallest_particles_size << " max:" << largest_particle_size << std::endl;
+		std::cout << "decide domain decomposition: particle min:" << smallest_particles_size << " particle max:" << largest_particle_size << " result:";
 
 		return (1 - (smallest_particles_size / largest_particle_size)) < DECOMPOSITION_TOLERANCE;
 	}

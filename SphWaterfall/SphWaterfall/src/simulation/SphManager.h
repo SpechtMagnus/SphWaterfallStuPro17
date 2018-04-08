@@ -48,7 +48,8 @@ private:
 	void computeLocalDensity(SphParticle&);
 	double computeLocalPressure(SphParticle&);
 
-	bool decideDomainDecomposition();
+	bool decideDomainDecomposition(int*);
+	void decomposeDomain();
 
 	void exchangeParticles();
 	void exchangeRimParticles(SphParticle::ParticleType);
