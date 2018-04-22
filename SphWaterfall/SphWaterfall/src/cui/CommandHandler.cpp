@@ -2,7 +2,7 @@
 
 CommandHandler::CommandHandler(int mpi_rank) : 
 	mpi_rank(mpi_rank),
-	sph_manager(SphManager(Vector3(DOMAIN_DIMENSION, DOMAIN_DIMENSION, DOMAIN_DIMENSION), TIMESTEPS, 0.03)){
+	sph_manager(SphManager(Vector3(DOMAIN_DIMENSION, DOMAIN_DIMENSION, DOMAIN_DIMENSION), TIMESTEPS, 0.01)){
 }
 
 void CommandHandler::start() {
@@ -308,9 +308,11 @@ void CommandHandler::simulate() {
 				}
 			}
 		}
-
 		sph_manager.add_particles(particles);
 	}
+	std::vector<SphParticle> particles;
+	particles.push_back(SphParticle(Vector3(10.0, 10.0, 10.0)));
+	sph_manager.add_particles(particles);
 	sph_manager.simulate();
 }
 

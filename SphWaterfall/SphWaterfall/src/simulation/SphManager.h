@@ -52,7 +52,7 @@ private:
 	void interpolateWithNeighbourVelocities(Vector3&, const std::vector<SphParticle>&);
 	Vector3 computeAcceleration(SphParticle&, std::vector<SphParticle>&, std::vector<SphParticle>&);
 	Vector3 computeDensityAcceleration(SphParticle&, std::vector<SphParticle>&, std::vector<SphParticle>&);
-	Vector3 computeViscosityAcceleration(SphParticle&, std::vector<SphParticle>&);
+	Vector3 computeViscosityAcceleration(SphParticle&, std::vector<SphParticle>&, std::vector<SphParticle>&);
 	void computeLocalDensity(SphParticle&);
 	double computeLocalPressure(SphParticle&);
 

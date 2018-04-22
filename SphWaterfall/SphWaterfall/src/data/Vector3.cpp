@@ -65,6 +65,13 @@ Vector3& operator+=(Vector3& a, const Vector3& b) {
 	return a;
 }
 
+Vector3 & operator+=(Vector3 & vector, const double & factor) {
+	vector.x += factor;
+	vector.y += factor;
+	vector.z += factor;
+	return vector;
+}
+
 Vector3& operator-=(Vector3& a, const Vector3& b) {
 	a.x -= b.x;
 	a.y -= b.y;

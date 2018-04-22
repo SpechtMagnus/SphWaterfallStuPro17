@@ -6,17 +6,17 @@
 // kernel Influence radius
 #define Q_MAX 1.2
 // smoothing radius 
-#define H 1
+#define H 0.45
 // domain dimesion
 #define DOMAIN_DIMENSION Q_MAX * 2.0
 // minimal density of a particle
 #define FLUID_REFERENCE_DENSITY 1.0
 // minimal density of a particle
-#define STATIC_REFERENCE_DENSITY 1.0
+#define STATIC_REFERENCE_DENSITY 1.1
 // particle mass
-#define FLUID_MASS 1.0
+#define FLUID_MASS 8e-3
 // particle mass
-#define STATIC_MASS 10.0
+#define STATIC_MASS 8e-3
 
 // size of the sources cubic spawn are
 #define SOURCE_SIZE  Q_MAX * 4.0
