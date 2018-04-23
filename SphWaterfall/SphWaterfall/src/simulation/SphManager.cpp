@@ -244,7 +244,7 @@ void SphManager::update() {
 bool SphManager::updateVelocity(SphParticle& particle, std::vector<SphParticle>& neighbours) {
 	Vector3 accelleration_timestep_start = computeAcceleration(particle, neighbours);
 	particle.velocity += (half_timestep_duration * accelleration_timestep_start);
-	particle.velocity = correctVelocity(particle, particle.velocity, neighbours);
+	//particle.velocity = correctVelocity(particle, particle.velocity, neighbours);
 
 	if (particle.velocity.length() > MAX_VELOCITY) {
 		particle.velocity = particle.velocity.normalize() * MAX_VELOCITY;
@@ -254,7 +254,7 @@ bool SphManager::updateVelocity(SphParticle& particle, std::vector<SphParticle>&
 
 	Vector3 accelleration_timestep_half = computeAcceleration(particle, neighbours);
 	Vector3 velocity_timestep_end = particle.velocity + (timestep_duration * accelleration_timestep_half);
-	velocity_timestep_end = correctVelocity(particle, velocity_timestep_end, neighbours);
+	//velocity_timestep_end = correctVelocity(particle, velocity_timestep_end, neighbours);
 
 	particle.position = position_timestep_half + (half_timestep_duration * velocity_timestep_end);
 	return particle.position.y <= sink_height;
@@ -303,7 +303,7 @@ Vector3 SphManager::computeDensityAcceleration(SphParticle& particle, std::vecto
 		float mass_ratio = neighbour_particle.mass / particle.mass;
 		float pressure_term = (particle_local_pressure + computeLocalPressure(neighbour_particle)) / (2 * particle.local_density * neighbour_particle.local_density);
 
-		density_acceleration = mass_ratio * pressure_term * kernel_value * rij;
+		density_acceleration -= mass_ratio * pressure_term * kernel_value * rij;
 	}
 
 	//std::cout << "after density acceleration:" << density_acceleration << std::endl; //debug
