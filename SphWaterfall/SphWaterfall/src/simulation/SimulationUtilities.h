@@ -13,9 +13,9 @@
 // domain dimesion
 #define DOMAIN_DIMENSION Q_MAX * 2.0
 // minimal density of a particle
-#define FLUID_REFERENCE_DENSITY 1.0
+#define FLUID_REFERENCE_DENSITY 20.0
 // minimal density of a particle
-#define STATIC_REFERENCE_DENSITY 1.0
+#define STATIC_REFERENCE_DENSITY 20.0
 // particle mass
 #define FLUID_MASS 1.0
 // particle mass

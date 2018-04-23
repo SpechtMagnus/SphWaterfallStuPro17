@@ -32,6 +32,11 @@ private:
 	double half_timestep_duration;
 	Vector3 const gravity_acceleration;
 
+	double poly_6_coefficient;
+	double spikey_grad_coefficient;
+	double viscosity_laplacian_coefficient;
+	double viscosity_coefficient;
+
 	std::unordered_map<int, ParticleDomain> domains;
 	std::unordered_map<int, std::vector<SphParticle>> add_particles_map;
 	std::unordered_map<SphParticle::ParticleType, std::unordered_map<int, std::vector<SphParticle*>>> process_map;

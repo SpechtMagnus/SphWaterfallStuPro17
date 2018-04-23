@@ -11,6 +11,11 @@ SphManager::SphManager(const Vector3& domain_dimensions, int number_of_timesteps
 	gravity_acceleration(Vector3(0.0, -9.81, 0.0)),
 	sink_height(0.0)
 {
+	poly_6_coefficient = 315.0 / (64.0*M_PI*powf(H, 9.0));
+	spikey_grad_coefficient = -45.0 / (M_PI*powf(H, 6.0));
+	viscosity_laplacian_coefficient = 45.0 / (M_PI*powf(H, 6.0f));
+	viscosity_coefficient = 0.018;
+
 	half_timestep_duration = timestep_duration / 2.0;
 
 	kernel = kernel_factory.getInstance(1);
@@ -282,9 +287,23 @@ Vector3 SphManager::computeDensityAcceleration(SphParticle& particle, std::vecto
 	double particle_local_pressure = computeLocalPressure(particle);
 
 	for (SphParticle& neighbour_particle : neighbours) {
-		density_acceleration -= (neighbour_particle.mass / particle.mass) *
-			((particle_local_pressure + computeLocalPressure(neighbour_particle)) / (2 * particle.local_density * neighbour_particle.local_density)) * 
-			(kernel->computeKernelGradientValue(particle.position - neighbour_particle.position));
+		Vector3 rij = particle.position - neighbour_particle.position;
+		double dist = rij.length();
+
+		if (dist == 0.0) { 
+			continue; 
+		}
+
+		float inv = 1 / dist;
+		rij = inv*rij;
+		float diff = H - dist;
+
+		// acceleration due to pressure
+		float kernel_value = spikey_grad_coefficient*diff*diff;
+		float mass_ratio = neighbour_particle.mass / particle.mass;
+		float pressure_term = (particle_local_pressure + computeLocalPressure(neighbour_particle)) / (2 * particle.local_density * neighbour_particle.local_density);
+
+		density_acceleration = mass_ratio * pressure_term * kernel_value * rij;
 	}
 
 	//std::cout << "after density acceleration:" << density_acceleration << std::endl; //debug
@@ -300,15 +319,23 @@ Vector3 SphManager::computeViscosityAcceleration(SphParticle& particle, std::vec
 			continue;
 		}
 
-		rij = neighbour_particle.position - particle.position;
-		if (rij.length() != 0.0) {
-			viscosity_acceleration += neighbour_particle.mass * ( (4.0 * 1.0 * rij * kernel->computeKernelGradientValue(rij)) /
-				((particle.local_density + neighbour_particle.local_density) * (rij.length() * rij.length())) ) *
-				(particle.velocity - neighbour_particle.velocity);
-		}
-	}
+		rij = particle.position - neighbour_particle.position;
+		double dist = rij.length();
 
-	viscosity_acceleration *= 1 / particle.local_density;
+		if (dist == 0.0) {
+			continue;
+		}
+
+		float inv = 1 / dist;
+		rij = inv*rij;
+		float diff = H - dist;
+
+		float kernel_value = viscosity_laplacian_coefficient*diff;
+		Vector3 vector_diff = neighbour_particle.velocity - particle.velocity;
+		float mass_ratio = neighbour_particle.mass / particle.mass;
+
+		viscosity_acceleration += (viscosity_coefficient*mass_ratio*(1 / neighbour_particle.local_density)*kernel_value) * vector_diff;
+	}
 
 	//std::cout << "after viscosity acceleration:" << viscosity_acceleration << std::endl; //debug
 	return viscosity_acceleration;
@@ -316,17 +343,16 @@ Vector3 SphManager::computeViscosityAcceleration(SphParticle& particle, std::vec
 
 void SphManager::computeLocalDensity(SphParticle& particle, std::vector<SphParticle>& neighbours) {
 	double local_density = 0.0;
+	double particle_square = particle.position.dot(particle.position);
+	double diff;
 
 	for (SphParticle& neighbour_particle : neighbours) {
-		local_density += neighbour_particle.mass * kernel->computeKernelValue(particle.position - neighbour_particle.position);
+		double neighbour_particle_square = neighbour_particle.position.dot(neighbour_particle.position);
+		diff = particle_square - neighbour_particle_square;
+		local_density += neighbour_particle.mass * (poly_6_coefficient * diff * diff * diff);
 	}
 
-	if (local_density < FLUID_REFERENCE_DENSITY) {
-		particle.local_density = FLUID_REFERENCE_DENSITY;
-	}
-	else {
-		particle.local_density = local_density;
-	}
+	particle.local_density = fmax(local_density, FLUID_REFERENCE_DENSITY);
 }
 
 double SphManager::computeLocalPressure(SphParticle& particle) {
