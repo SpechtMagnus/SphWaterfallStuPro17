@@ -16,7 +16,8 @@ Frame::Frame(unsigned int width, unsigned int height) {
 }
 
 Pixel& Frame::getPixel(unsigned int x, unsigned int y) {
-	if (x >= this->width || y >= this->height) return Pixel(0, 0, 0);
+    auto p = Pixel(0, 0, 0);
+	if (x >= this->width || y >= this->height) return p;
 	return pixels.at(y*width + x);
 }
 

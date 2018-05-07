@@ -49,19 +49,12 @@ void ParticleIO::exportParticlesToVTK(vector<SphParticle>& particles, string nam
 	for (int i = 0; i < count; i++) {
 		myfile << "1 " << i << "\n";
 	}
+
 	myfile << "POINT_DATA " << count << "\n";
 	myfile << "SCALARS Norm FLOAT" << "\n";
 	myfile << "LOOKUP_TABLE default" << "\n";
 	for (auto& each_particle : particles) {
 		myfile << each_particle.position.length() << "\n";
-	}
-	//myfile << "POINT_DATA " << nodes << "\n";
-	myfile << "VECTORS Velocity FLOAT" << "\n";
-	myfile << "LOOKUP_TABLE default" << "\n";
-	for (auto& each_particle : particles) {
-		myfile << each_particle.velocity.x << " "
-               << each_particle.velocity.y << " "
-               << each_particle.velocity.z << "\n";
 	}
 
 	myfile << "SCALARS Density FLOAT" << "\n";
@@ -72,12 +65,22 @@ void ParticleIO::exportParticlesToVTK(vector<SphParticle>& particles, string nam
 
     if (!proc_boundaries.empty()) {
         myfile << "SCALARS MPI_Rank INT" << "\n";
+        myfile << "LOOKUP_TABLE default" << "\n";
         for (int p = 0; p < proc_boundaries.size(); ++p) {
             for (int part = 0; part < proc_boundaries[p]; ++part) {
                 myfile << p << "\n";
             }
         }
     }
+
+	//myfile << "POINT_DATA " << nodes << "\n";
+	myfile << "VECTORS Velocity FLOAT" << "\n";
+	//myfile << "LOOKUP_TABLE default" << "\n";
+	for (auto& each_particle : particles) {
+		myfile << each_particle.velocity.x << " "
+               << each_particle.velocity.y << " "
+               << each_particle.velocity.z << "\n";
+	}
 
 	myfile.close();
 }
